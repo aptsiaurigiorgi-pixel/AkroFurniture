@@ -60,7 +60,19 @@ const LightRays = ({
   const meshRef = useRef(null);
   const cleanupFunctionRef = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const observerRef = useRef(null);
+  const frameSkipRef = useRef(0);
+
+  // Check if mobile device for performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -269,9 +281,18 @@ void main() {
           return;
         }
 
+        // Frame skipping for mobile performance
+        if (isMobile) {
+          frameSkipRef.current++;
+          if (frameSkipRef.current % 2 !== 0) {
+            animationIdRef.current = requestAnimationFrame(loop);
+            return;
+          }
+        }
+
         uniforms.iTime.value = t * 0.001;
 
-        if (followMouse && mouseInfluence > 0.0) {
+        if (followMouse && mouseInfluence > 0.0 && !isMobile) {
           const smoothing = 0.92;
 
           smoothMouseRef.current.x =
@@ -393,6 +414,9 @@ void main() {
   ]);
 
   useEffect(() => {
+    // Disable mouse tracking on mobile for better performance
+    if (isMobile || !followMouse) return;
+
     const handleMouseMove = (e) => {
       if (!containerRef.current || !rendererRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
@@ -401,11 +425,9 @@ void main() {
       mouseRef.current = { x, y };
     };
 
-    if (followMouse) {
-      window.addEventListener("mousemove", handleMouseMove);
-      return () => window.removeEventListener("mousemove", handleMouseMove);
-    }
-  }, [followMouse]);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [followMouse, isMobile]);
 
   return (
     <div

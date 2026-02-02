@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 function CategoryGrid({ items = [] }) {
   const navigate = useNavigate();
@@ -23,18 +24,31 @@ function CategoryGrid({ items = [] }) {
 }
 
 function CategoryCard({ text, image, itemCount = "24 items", onClick, delay }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
   return (
     <motion.div
       className="category-card"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -8 }}
       onClick={onClick}
     >
       <div className="category-card-image">
-        <img src={image} alt={text} loading="lazy" />
+        <img
+          src={image}
+          alt={text}
+          loading="lazy"
+          decoding="async"
+          className={`lazy-image ${isLoaded ? "loaded" : ""}`}
+          onLoad={() => setIsLoaded(true)}
+          style={{
+            willChange: "transform",
+            transform: "translateZ(0)",
+          }}
+        />
         <div className="category-card-overlay">
           <motion.span
             className="explore-btn"

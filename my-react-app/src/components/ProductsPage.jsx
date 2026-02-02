@@ -482,10 +482,14 @@ function ProductsPage() {
                           <img
                             src={product.image}
                             alt={product.title}
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: "100%",
                               height: "100%",
                               objectFit: "cover",
+                              willChange: "transform",
+                              transform: "translateZ(0)",
                             }}
                           />
                         </div>

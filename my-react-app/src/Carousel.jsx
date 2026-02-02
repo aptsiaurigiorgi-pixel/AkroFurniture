@@ -110,7 +110,17 @@ function CarouselItem({ item, index, itemWidth, x }) {
     >
       <div className="carousel-item-content">
         <div className="carousel-image-wrapper">
-          <img src={item.image} alt={item.title} className="carousel-image" />
+          <img
+            src={item.image}
+            alt={item.title}
+            className="carousel-image"
+            loading="lazy"
+            decoding="async"
+            style={{
+              willChange: "transform",
+              transform: "translateZ(0)",
+            }}
+          />
           <div className="carousel-category">{item.category}</div>
         </div>
         <div className="carousel-text">

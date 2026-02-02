@@ -1,7 +1,7 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Routes, Route } from "react-router-dom";
 import "./i18n";
-import { useState, useContext } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Header from "./Header.jsx";
 import Footer from "./Footer.jsx";
 import { useShopping } from "./contexts/ShoppingContext.jsx";
@@ -19,12 +19,29 @@ import ScrollReveal from "./ScrollReveal.jsx";
 import HeroSection from "./components/HeroSection.jsx";
 import TiltCard from "./components/TiltCard.jsx";
 import MagneticButton from "./components/MagneticButton.jsx";
+import LoadingScreen from "./components/LoadingScreen.jsx";
 import { useTranslation } from "react-i18next";
 import { products } from "./contexts/ShoppingContext.jsx";
 
 function App() {
   const { addToCart, addToWishlist, toasts, removeToast } = useShopping();
   const { t, i18n } = useTranslation();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const handleLoadingComplete = useCallback(() => {
+    setIsLoading(false);
+  }, []);
 
   const scrollToProducts = () => {
     const productsSection = document.getElementById("products");
@@ -33,30 +50,49 @@ function App() {
     }
   };
 
+  // Category items for the grid
+  const categoryItems = [
+    { text: "Living Room", image: "/images/photo1.jpg", itemCount: "24 items" },
+    { text: "Bedroom", image: "/images/photo2.jpg", itemCount: "18 items" },
+    { text: "Dining", image: "/images/photo3.jpg", itemCount: "12 items" },
+    { text: "Office", image: "/images/image1.jpg", itemCount: "15 items" },
+    { text: "Outdoor", image: "/images/image2.jpg", itemCount: "10 items" },
+    { text: "Decor", image: "/images/image3.jpg", itemCount: "32 items" },
+  ];
+
   return (
     <>
-      {/* Global LightRays Background */}
-      <div
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      >
-        <LightRays
-          raysOrigin="top-center"
-          raysColor="#d4af37"
-          raysSpeed={0.5}
-          lightSpread={0.8}
-          rayLength={1.5}
-          followMouse={true}
-          mouseInfluence={0.15}
-        />
-      </div>
+      {/* Loading Screen */}
+      <AnimatePresence>
+        {isLoading && (
+          <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+        )}
+      </AnimatePresence>
+
+      {/* Global LightRays Background - Reduced on mobile */}
+      {!isMobile && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <LightRays
+            raysOrigin="top-center"
+            raysColor="#d4af37"
+            raysSpeed={0.5}
+            lightSpread={0.8}
+            rayLength={1.5}
+            followMouse={true}
+            mouseInfluence={0.15}
+          />
+        </div>
+      )}
 
       <div style={{ position: "relative", zIndex: 1 }}>
         <Header />
@@ -244,27 +280,27 @@ function App() {
                     items={[
                       {
                         text: "Living Room",
-                        image: "/src/assets/photo1.jpg",
+                        image: "/images/photo1.jpg",
                         itemCount: "48 items",
                       },
                       {
                         text: "Bedroom",
-                        image: "/src/assets/photo2.jpg",
+                        image: "/images/photo2.jpg",
                         itemCount: "36 items",
                       },
                       {
                         text: "Dining",
-                        image: "/src/assets/photo3.jpg",
+                        image: "/images/photo3.jpg",
                         itemCount: "24 items",
                       },
                       {
                         text: "Office",
-                        image: "/src/assets/image1.jpg",
+                        image: "/images/image1.jpg",
                         itemCount: "32 items",
                       },
                       {
                         text: "Outdoor",
-                        image: "/src/assets/image2.jpg",
+                        image: "/images/image2.jpg",
                         itemCount: "18 items",
                       },
                     ]}

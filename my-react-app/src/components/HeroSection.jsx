@@ -222,9 +222,15 @@ function HeroSection({ scrollToProducts }) {
             transition={{ duration: 1, delay: 0.5 }}
           >
             <img
-              src="/src/assets/photo1.jpg"
+              src="/images/photo1.jpg"
               alt="Luxury Sofa"
               className="hero-image"
+              loading="eager"
+              decoding="async"
+              style={{
+                willChange: "transform",
+                transform: "translateZ(0)",
+              }}
             />
             <div className="image-glow" />
           </motion.div>
@@ -237,9 +243,15 @@ function HeroSection({ scrollToProducts }) {
             transition={{ duration: 1, delay: 0.7 }}
           >
             <img
-              src="/src/assets/photo2.jpg"
+              src="/images/photo2.jpg"
               alt="Modern Interior"
               className="hero-image"
+              loading="lazy"
+              decoding="async"
+              style={{
+                willChange: "transform",
+                transform: "translateZ(0)",
+              }}
             />
             <div className="image-glow" />
           </motion.div>
@@ -252,9 +264,15 @@ function HeroSection({ scrollToProducts }) {
             transition={{ duration: 1, delay: 0.9 }}
           >
             <img
-              src="/src/assets/photo3.jpg"
+              src="/images/photo3.jpg"
               alt="Designer Furniture"
               className="hero-image"
+              loading="lazy"
+              decoding="async"
+              style={{
+                willChange: "transform",
+                transform: "translateZ(0)",
+              }}
             />
             <div className="image-glow" />
           </motion.div>
