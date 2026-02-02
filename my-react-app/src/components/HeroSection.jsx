@@ -1,11 +1,22 @@
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import MagneticButton from "./MagneticButton";
 import { useTranslation } from "react-i18next";
 
 function HeroSection({ scrollToProducts }) {
   const { t } = useTranslation();
   const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile device for performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -174,7 +185,7 @@ function HeroSection({ scrollToProducts }) {
             <MagneticButton
               onClick={scrollToProducts}
               className="cta-button-premium"
-              strength={0.2}
+              strength={isMobile ? 0 : 0.2}
             >
               <span className="btn-text">{t("hero.explore")}</span>
               <motion.span
@@ -202,7 +213,7 @@ function HeroSection({ scrollToProducts }) {
               <motion.div
                 key={index}
                 className="stat-item"
-                whileHover={{ y: -5 }}
+                whileHover={isMobile ? {} : { y: -5 }}
                 transition={{ duration: 0.2 }}
               >
                 <span className="stat-value">{stat.value}</span>

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function CategoryGrid({ items = [] }) {
   const navigate = useNavigate();
@@ -25,6 +25,17 @@ function CategoryGrid({ items = [] }) {
 
 function CategoryCard({ text, image, itemCount = "24 items", onClick, delay }) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   return (
     <motion.div
@@ -33,7 +44,7 @@ function CategoryCard({ text, image, itemCount = "24 items", onClick, delay }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.5, delay }}
-      whileHover={{ y: -8 }}
+      whileHover={isMobile ? {} : { y: -8 }}
       onClick={onClick}
     >
       <div className="category-card-image">
@@ -53,7 +64,7 @@ function CategoryCard({ text, image, itemCount = "24 items", onClick, delay }) {
           <motion.span
             className="explore-btn"
             initial={{ opacity: 0, y: 10 }}
-            whileHover={{ scale: 1.05 }}
+            whileHover={isMobile ? {} : { scale: 1.05 }}
           >
             Explore
           </motion.span>

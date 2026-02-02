@@ -726,6 +726,12 @@ nav {
   background: #f5f5f5;
 }
 
+@media (max-width: 768px) {
+  .bento-section {
+    display: none;
+  }
+}
+
 /* Contact Section */
 .contact {
   padding: 120px 0;
@@ -1343,6 +1349,24 @@ footer {
   display: block;
   margin-top: 8px;
   font-size: 13px;
+}
+
+.switch-form-button {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: var(--transition);
+  padding: 0;
+  margin-left: 4px;
+}
+
+.switch-form-button:hover {
+  color: var(--primary-color);
+  transform: translateY(-1px);
 }
 
 /* Cart Page Styles */

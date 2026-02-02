@@ -1,8 +1,14 @@
-import { useLayoutEffect, useRef, useMemo } from "react";
+import { useLayoutEffect, useRef, useMemo, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Helper function to detect mobile devices
+const checkIsMobile = () => {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth <= 768 || "ontouchstart" in window;
+};
 
 const ScrollReveal = ({
   children,
@@ -20,6 +26,16 @@ const ScrollReveal = ({
   duration = 0.6,
 }) => {
   const containerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(checkIsMobile);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(checkIsMobile());
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const splitText = useMemo(() => {
     const text = typeof children === "string" ? children : "";
@@ -50,13 +66,16 @@ const ScrollReveal = ({
       }
     });
 
+    // Disable blur effects on mobile for performance
+    const shouldEnableBlur = enableBlur && !isMobile;
+
     // Set initial states based on animation type
     switch (animationType) {
       case "slide-up":
         gsap.set(words, {
           opacity: baseOpacity,
           y: 50,
-          filter: enableBlur ? `blur(${blurStrength}px)` : "none",
+          filter: shouldEnableBlur ? `blur(${blurStrength}px)` : "none",
           rotation: baseRotation,
         });
         break;
@@ -64,7 +83,7 @@ const ScrollReveal = ({
         gsap.set(words, {
           opacity: baseOpacity,
           scale: 0.8,
-          filter: enableBlur ? `blur(${blurStrength}px)` : "none",
+          filter: shouldEnableBlur ? `blur(${blurStrength}px)` : "none",
           rotation: baseRotation,
         });
         break;
@@ -72,38 +91,38 @@ const ScrollReveal = ({
         gsap.set(words, {
           opacity: baseOpacity,
           rotation: baseRotation * 5,
-          filter: enableBlur ? `blur(${blurStrength}px)` : "none",
+          filter: shouldEnableBlur ? `blur(${blurStrength}px)` : "none",
         });
         break;
       case "blur-reveal":
         gsap.set(words, {
           opacity: 0.2,
-          filter: `blur(${blurStrength}px)`,
+          filter: shouldEnableBlur ? `blur(${blurStrength}px)` : "none",
           y: 20,
         });
         break;
       default: // fade-in
         gsap.set(words, {
           opacity: baseOpacity,
-          filter: enableBlur ? `blur(${blurStrength}px)` : "none",
+          filter: shouldEnableBlur ? `blur(${blurStrength}px)` : "none",
           rotation: baseRotation,
         });
     }
 
-    // Scroll animation
+    // Scroll animation - simplified for mobile
     const animProps = {
       opacity: 1,
-      filter: "blur(0px)",
+      filter: shouldEnableBlur ? "blur(0px)" : "none",
       y: 0,
       rotation: 0,
-      stagger: staggerTime,
-      duration: duration,
+      stagger: isMobile ? Math.min(staggerTime, 0.03) : staggerTime,
+      duration: isMobile ? Math.min(duration, 0.4) : duration,
       ease: "power2.out",
       scrollTrigger: {
         trigger: container,
         start: "top 85%",
         end: "top 50%",
-        scrub: 1,
+        scrub: isMobile ? false : 1, // Disable scrub on mobile for better performance
       },
     };
 

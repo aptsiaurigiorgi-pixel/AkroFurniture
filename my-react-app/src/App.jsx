@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
+import { Analytics } from "@vercel/analytics/react";
 import { Routes, Route } from "react-router-dom";
 import "./i18n";
 import { useState, useEffect, useCallback } from "react";
@@ -20,6 +21,7 @@ import HeroSection from "./components/HeroSection.jsx";
 import TiltCard from "./components/TiltCard.jsx";
 import MagneticButton from "./components/MagneticButton.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
+import CustomCursor from "./components/CustomCursor.jsx";
 import { useTranslation } from "react-i18next";
 import { products } from "./contexts/ShoppingContext.jsx";
 
@@ -62,6 +64,9 @@ function App() {
 
   return (
     <>
+      {/* Custom Cursor */}
+      {!isLoading && !isMobile && <CustomCursor />}
+
       {/* Loading Screen */}
       <AnimatePresence>
         {isLoading && (

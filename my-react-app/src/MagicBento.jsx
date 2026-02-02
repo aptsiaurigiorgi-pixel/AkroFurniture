@@ -17,8 +17,22 @@ const MagicBento = ({
   const containerRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile device for performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || "ontouchstart" in window);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
+    // Disable mouse effects on mobile
+    if (isMobile) return;
+
     const handleMouseMove = (e) => {
       if (!enableSpotlight && !enableMagnetism && !enableTilt) return;
 
@@ -36,21 +50,24 @@ const MagicBento = ({
       container.addEventListener("mousemove", handleMouseMove);
       return () => container.removeEventListener("mousemove", handleMouseMove);
     }
-  }, [enableSpotlight, enableMagnetism, enableTilt]);
+  }, [enableSpotlight, enableMagnetism, enableTilt, isMobile]);
 
-  const spotlightStyle = enableSpotlight
-    ? {
-        background: `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, rgba(${glowColor}, 0.2), transparent)`,
-      }
-    : {};
+  // Disable spotlight and glow effects on mobile
+  const spotlightStyle =
+    enableSpotlight && !isMobile
+      ? {
+          background: `radial-gradient(circle ${spotlightRadius}px at ${mousePos.x}px ${mousePos.y}px, rgba(${glowColor}, 0.2), transparent)`,
+        }
+      : {};
 
-  const glowStyle = enableBorderGlow
-    ? {
-        boxShadow: isHovered
-          ? `0 0 20px rgba(${glowColor}, 0.5), inset 0 0 20px rgba(${glowColor}, 0.1)`
-          : `0 0 10px rgba(${glowColor}, 0.3)`,
-      }
-    : {};
+  const glowStyle =
+    enableBorderGlow && !isMobile
+      ? {
+          boxShadow: isHovered
+            ? `0 0 20px rgba(${glowColor}, 0.5), inset 0 0 20px rgba(${glowColor}, 0.1)`
+            : `0 0 10px rgba(${glowColor}, 0.3)`,
+        }
+      : {};
 
   return (
     <div
@@ -76,7 +93,7 @@ const MagicBento = ({
         ...glowStyle,
       }}
     >
-      {enableSpotlight && (
+      {enableSpotlight && !isMobile && (
         <div
           style={{
             position: "absolute",

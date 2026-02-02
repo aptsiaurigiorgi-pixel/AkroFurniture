@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useMotionValue, useTransform } from "motion/react";
+
+// Mobile detection helper
+const isMobileDevice = () => {
+  if (typeof window === "undefined") return false;
+  return window.innerWidth <= 768 || "ontouchstart" in window;
+};
 import carousel1 from "./assets/icons/carousel1.jpg";
 import carousel2 from "./assets/icons/carousel2.jpg";
 import carousel3 from "./assets/icons/carousel3.jpg";
@@ -89,13 +95,14 @@ const VELOCITY_THRESHOLD = 500;
 const GAP = 24;
 const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
 
-function CarouselItem({ item, index, itemWidth, x }) {
+function CarouselItem({ item, index, itemWidth, x, isMobile }) {
   const range = [
     -(index + 1) * (itemWidth + GAP),
     -index * (itemWidth + GAP),
     -(index - 1) * (itemWidth + GAP),
   ];
-  const outputRange = [30, 0, -30];
+  // Disable 3D rotation on mobile for better performance
+  const outputRange = isMobile ? [0, 0, 0] : [30, 0, -30];
   const rotateY = useTransform(x, range, outputRange, { clamp: false });
 
   return (
@@ -155,8 +162,19 @@ export default function Carousel({
   const [isJumping, setIsJumping] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const containerRef = useRef(null);
+
+  // Check if mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(isMobileDevice());
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     if (pauseOnHover && containerRef.current) {
@@ -339,6 +357,7 @@ export default function Carousel({
               index={index}
               itemWidth={itemWidth}
               x={x}
+              isMobile={isMobile}
             />
           ))}
         </motion.div>
