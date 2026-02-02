@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useShopping } from "./contexts/ShoppingContext.jsx";
 import LoginPage from "./components/LoginPage.jsx";
 import CartPage from "./components/CartPage.jsx";
@@ -17,6 +17,7 @@ function Header() {
   const { isLoggedIn, logout, cartCount } = useShopping();
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const languages = [
     { code: "en", name: "EN", flag: "🇺🇸" },
@@ -38,10 +39,44 @@ function Header() {
   };
 
   const scrollToHome = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    navigate("/");
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }, 100);
+  };
+
+  const handleNavClick = (to) => {
+    closeMobileMenu();
+
+    // Check if it's a hash link
+    if (to.includes("#")) {
+      const [path, hash] = to.split("#");
+
+      // If we're not on the home page, navigate there first
+      if (location.pathname !== "/" && path === "/") {
+        navigate("/");
+        // Wait for navigation then scroll to element
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }, 300);
+      } else {
+        // Already on home page, just scroll
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    } else {
+      // Regular route navigation
+      navigate(to);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const toggleMobileMenu = () => {
@@ -120,7 +155,15 @@ function Header() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Link to={link.to}>{link.label}</Link>
+                <a
+                  href={link.to}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleNavClick(link.to);
+                  }}
+                >
+                  {link.label}
+                </a>
               </motion.li>
             ))}
           </motion.ul>
@@ -329,9 +372,15 @@ function Header() {
               }
               transition={{ delay: index * 0.05 + 0.1 }}
             >
-              <Link to={link.to} onClick={closeMobileMenu}>
+              <a
+                href={link.to}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleNavClick(link.to);
+                }}
+              >
                 {link.label}
-              </Link>
+              </a>
             </motion.li>
           ))}
         </ul>
